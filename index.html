@@ -30,7 +30,8 @@
             container.innerHTML = ""; // Clear previous data
             data.forEach(doc => {
                 const item = document.createElement("div");
-                item.textContent = `${doc.id}: ${JSON.stringify(doc.data())}`;
+                const data = doc.data();
+                item.textContent = `Title: "${data.title}", Price: $${data.price}, Sold: ${data.sold}`;
                 container.appendChild(item);
             });
         }
