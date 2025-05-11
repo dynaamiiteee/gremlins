@@ -10,7 +10,7 @@
 
 Steps to build and/or run the software:
 
-1. go to [My project site]([https://rylandbangerter.github.io/applied-programming/index.html](https://dynaamiiteee.github.io/gremlins/))
+1. go to [My project site](https://dynaamiiteee.github.io/gremlins/)
 2. That should be all that you need to do.
 
 Instructions for using the software:
