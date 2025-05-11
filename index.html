@@ -6,9 +6,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
-        import { getFirestore, collection, onSnapshot, addDoc } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
+        import { getFirestore, collection, onSnapshot, addDoc, query, where, getDocs, deleteDoc } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
 
-        // Firebase configuration
+        // For Firebase JS SDK v7.20.0 and later, measurementId is optional
         const firebaseConfig = {
             apiKey: "AIzaSyDwo1K1HCEW4T4TrCfgS3BRSNpQb-KFEXE",
             authDomain: "gremlis-5ded7.firebaseapp.com",
@@ -55,11 +55,79 @@
         }).catch((error) => {
             console.error("Error adding document:", error);
         });
+
+        const form = document.getElementById("product-form");
+        form.addEventListener("submit", async (e) => {
+            e.preventDefault();
+            const title = form.title.value;
+            const price = parseFloat(form.price.value);
+            const sold = form.sold.value === "true";
+
+            console.log("Form data:", { title, price, sold });
+
+            try {
+                const docRef = await addDoc(productInfoRef, { title, price, sold });
+                console.log("Product added successfully with ID:", docRef.id);
+                form.reset();
+            } catch (error) {
+                console.error("Error adding product:", error);
+            }
+        });
+
+        // Remove product functionality
+        // Add event listener to the remove form
+        // Ensure the remove form is defined after the DOM is loaded
+        const removeForm = document.getElementById("remove-form");
+        removeForm.addEventListener("submit", async (e) => {
+            e.preventDefault();
+            const titleToRemove = removeForm["remove-title"].value;
+
+            try {
+                // Create a query with the 'where' condition
+                const q = query(productInfoRef, where("title", "==", titleToRemove));
+                const querySnapshot = await getDocs(q); // Use getDocs to execute the query
+
+                if (querySnapshot.empty) {
+                    console.log("No matching documents found.");
+                } else {
+                    querySnapshot.forEach(async (doc) => {
+                        await deleteDoc(doc.ref); // Correct way to delete the document
+                        console.log(`Document with ID ${doc.id} deleted.`);
+                    });
+                }
+                removeForm.reset();
+            } catch (error) {
+                console.error("Error removing product:", error);
+            }
+        });
+
     </script>
     <title>Firestore Real-Time Listener</title>
 </head>
 
 <body>
+    <form id="product-form">
+        <label for="title">Title:</label>
+        <input type="text" id="title" name="title" required>
+        <br>
+        <label for="price">Price:</label>
+        <input type="number" id="price" name="price" required>
+        <br>
+        <label for="sold">Sold:</label>
+        <select id="sold" name="sold" required>
+            <option value="true">Yes</option>
+            <option value="false">No</option>
+        </select>
+        <br>
+        <button type="submit">Add Product</button>
+    </form>
+
+    <form id="remove-form">
+        <label for="remove-title">Title to Remove:</label>
+        <input type="text" id="remove-title" name="remove-title" required>
+        <br>
+        <button type="submit">Remove Product</button>
+    </form>
     <h1>Product Info</h1>
     <div id="data-container">
         <!-- Data from Firestore will be displayed here -->
@@ -67,129 +135,3 @@
 </body>
 
 </html>
-
-<!-- <!DOCTYPE html>
-<html lang="en">
-
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <script type="module">
-        // Import the functions you need from the SDKs you need
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
-        import { getAnalytics } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-analytics.js";
-
-        // Your web app's Firebase configuration
-        const firebaseConfig = {
-            apiKey: "AIzaSyDwo1K1HCEW4T4TrCfgS3BRSNpQb-KFEXE",
-            authDomain: "gremlis-5ded7.firebaseapp.com",
-            projectId: "gremlis-5ded7",
-            storageBucket: "gremlis-5ded7.firebasestorage.app",
-            messagingSenderId: "593052687472",
-            appId: "1:593052687472:web:48c45bebba5042c1f2a8b5",
-            measurementId: "G-N0178NDHYT"
-        };
-
-        // Initialize Firebase
-        const app = initializeApp(firebaseConfig);
-        const analytics = getAnalytics(app);
-    </script>
-    <title>Document</title>
-</head>
-
-<body>
-    <script>// Add a new document to a collection called 'users'
-        db.collection("productInfo").add({
-            price: 200,
-            sold: false,
-            title: "AirPods Pro"
-        })
-            .then((docRef) => {
-                console.log("Document written with ID: ", docRef.id);
-            })
-            .catch((error) => {
-                console.error("Error adding document: ", error);
-            });
-
-        // Set data in a specific document (will create if it doesn't exist)
-        db.collection("productInfo").doc("product2").set({
-            price: 200,
-            sold: true,
-            title: "Airforce 1 updated"
-        })
-            .then(() => {
-                console.log("Document successfully written!");
-            })
-            .catch((error) => {
-                console.error("Error writing document: ", error);
-            });
-    </script>
-
-    <script>// Get a single document
-        db.collection("productInfo").doc("product1").get()
-            .then((doc) => {
-                if (doc.exists) {
-                    console.log("Document data:", doc.data());
-                } else {
-                    console.log("No such document!");
-                }
-            })
-            .catch((error) => {
-                console.log("Error getting document:", error);
-            });
-
-        // Get all documents in a collection
-        db.collection("productInfo").get()
-            .then((querySnapshot) => {
-                querySnapshot.forEach((doc) => {
-                    console.log(`${doc.id} => ${doc.data()}`);
-                });
-            })
-            .catch((error) => {
-                console.log("Error getting documents: ", error);
-            });
-
-        // Query data based on conditions
-        db.collection("productInfo")
-            .where("price", ">", "150")
-            .orderBy("title")
-            .limit(5)
-            .get()
-            .then((querySnapshot) => {
-                querySnapshot.forEach((doc) => {
-                    console.log(doc.id, " => ", doc.data());
-                });
-            })
-            .catch((error) => {
-                console.log("Error getting documents: ", error);
-            });
-    </script>
-
-    <script>// Update a single field in a document
-        db.collection("productInfo").doc("product1").update({ sold: true })
-            .then(() => {
-                console.log("Document successfully updated!");
-            })
-            .catch((error) => {
-                console.error("Error updating document: ", error);
-            });
-
-        // Update multiple fields
-        db.collection("productInfo").doc("product2").update({
-            price: firebase.firestore.FieldValue.increment(1), // Increment a number
-            "title": "Airforce 1 updated again", // Update a string
-            // "address.city": "New York" // Update a nested field
-        });
-    </script>
-    <script>
-        db.collection("productInfo").doc("delete this").delete()
-            .then(() => {
-                console.log("Document successfully deleted!");
-            })
-            .catch((error) => {
-                console.error("Error removing document: ", error);
-            });
-    </script>
-</body>
-
-</html> -->
