@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
+        import { getFirestore, collection, onSnapshot, addDoc } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
+
+        // Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyDwo1K1HCEW4T4TrCfgS3BRSNpQb-KFEXE",
+            authDomain: "gremlis-5ded7.firebaseapp.com",
+            projectId: "gremlis-5ded7",
+            storageBucket: "gremlis-5ded7.firebasestorage.app",
+            messagingSenderId: "593052687472",
+            appId: "1:593052687472:web:48c45bebba5042c1f2a8b5",
+            measurementId: "G-N0178NDHYT"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        // Function to display data
+        function displayData(data) {
+            console.log("Displaying data:", data);
+            const container = document.getElementById("data-container");
+            container.innerHTML = ""; // Clear previous data
+            data.forEach(doc => {
+                const item = document.createElement("div");
+                item.textContent = `${doc.id}: ${JSON.stringify(doc.data())}`;
+                container.appendChild(item);
+            });
+        }
+
+        // Real-time listener for the 'productInfo' collection
+        const productInfoRef = collection(db, "productInfo");
+        onSnapshot(productInfoRef, (snapshot) => {
+            console.log("Snapshot received:", snapshot);
+            const data = snapshot.docs;
+            displayData(data);
+        }, (error) => {
+            console.error("Error with snapshot listener:", error);
+        });
+
+        // Add a sample document (optional)
+        addDoc(productInfoRef, {
+            price: 200,
+            sold: false,
+            title: "Sample Product"
+        }).then(() => {
+            console.log("Sample document added!");
+        }).catch((error) => {
+            console.error("Error adding document:", error);
+        });
+    </script>
+    <title>Firestore Real-Time Listener</title>
+</head>
+
+<body>
+    <h1>Product Info</h1>
+    <div id="data-container">
+        <!-- Data from Firestore will be displayed here -->
+    </div>
+</body>
+
+</html>
+
+<!-- <!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script type="module">
+        // Import the functions you need from the SDKs you need
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
+        import { getAnalytics } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-analytics.js";
+
+        // Your web app's Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyDwo1K1HCEW4T4TrCfgS3BRSNpQb-KFEXE",
+            authDomain: "gremlis-5ded7.firebaseapp.com",
+            projectId: "gremlis-5ded7",
+            storageBucket: "gremlis-5ded7.firebasestorage.app",
+            messagingSenderId: "593052687472",
+            appId: "1:593052687472:web:48c45bebba5042c1f2a8b5",
+            measurementId: "G-N0178NDHYT"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const analytics = getAnalytics(app);
+    </script>
+    <title>Document</title>
+</head>
+
+<body>
+    <script>// Add a new document to a collection called 'users'
+        db.collection("productInfo").add({
+            price: 200,
+            sold: false,
+            title: "AirPods Pro"
+        })
+            .then((docRef) => {
+                console.log("Document written with ID: ", docRef.id);
+            })
+            .catch((error) => {
+                console.error("Error adding document: ", error);
+            });
+
+        // Set data in a specific document (will create if it doesn't exist)
+        db.collection("productInfo").doc("product2").set({
+            price: 200,
+            sold: true,
+            title: "Airforce 1 updated"
+        })
+            .then(() => {
+                console.log("Document successfully written!");
+            })
+            .catch((error) => {
+                console.error("Error writing document: ", error);
+            });
+    </script>
+
+    <script>// Get a single document
+        db.collection("productInfo").doc("product1").get()
+            .then((doc) => {
+                if (doc.exists) {
+                    console.log("Document data:", doc.data());
+                } else {
+                    console.log("No such document!");
+                }
+            })
+            .catch((error) => {
+                console.log("Error getting document:", error);
+            });
+
+        // Get all documents in a collection
+        db.collection("productInfo").get()
+            .then((querySnapshot) => {
+                querySnapshot.forEach((doc) => {
+                    console.log(`${doc.id} => ${doc.data()}`);
+                });
+            })
+            .catch((error) => {
+                console.log("Error getting documents: ", error);
+            });
+
+        // Query data based on conditions
+        db.collection("productInfo")
+            .where("price", ">", "150")
+            .orderBy("title")
+            .limit(5)
+            .get()
+            .then((querySnapshot) => {
+                querySnapshot.forEach((doc) => {
+                    console.log(doc.id, " => ", doc.data());
+                });
+            })
+            .catch((error) => {
+                console.log("Error getting documents: ", error);
+            });
+    </script>
+
+    <script>// Update a single field in a document
+        db.collection("productInfo").doc("product1").update({ sold: true })
+            .then(() => {
+                console.log("Document successfully updated!");
+            })
+            .catch((error) => {
+                console.error("Error updating document: ", error);
+            });
+
+        // Update multiple fields
+        db.collection("productInfo").doc("product2").update({
+            price: firebase.firestore.FieldValue.increment(1), // Increment a number
+            "title": "Airforce 1 updated again", // Update a string
+            // "address.city": "New York" // Update a nested field
+        });
+    </script>
+    <script>
+        db.collection("productInfo").doc("delete this").delete()
+            .then(() => {
+                console.log("Document successfully deleted!");
+            })
+            .catch((error) => {
+                console.error("Error removing document: ", error);
+            });
+    </script>
+</body>
+
+</html> -->
