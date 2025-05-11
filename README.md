@@ -34,7 +34,7 @@ To recreate the development environment, you need the following software and/or 
 ## Useful Websites to Learn More
 I found these websites useful in developing this software:
 
-* [Node.js]([https://xgboost.readthedocs.io/en/release_3.0.0/](https://nodejs.org/en))
+* [Node.js](https://nodejs.org/en)
 * [npm](https://www.npmjs.com/)
 * [python](https://www.python.org/)
 * [Firebase](https://firebase.google.com/)
